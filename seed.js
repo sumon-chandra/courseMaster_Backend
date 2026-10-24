@@ -22,13 +22,20 @@ const seedDatabase = async () => {
     await AssignmentSubmission.deleteMany({});
 
     console.log("Seeding Users...");
-    const hashedPassword = await bcrypt.hash("admin123", 10);
+    const adminPassword = await bcrypt.hash("admin123", 10);
     const studentPassword = await bcrypt.hash("student123", 10);
 
     const adminUser = await User.create({
       name: "Super Admin",
       email: process.env.ADMIN_EMAIL || "admin@coursemaster.com",
-      passwordHash: hashedPassword,
+      passwordHash: adminPassword,
+      role: "admin",
+    });
+
+    const instructorUser = await User.create({
+      name: "Jhankar Mahbub",
+      email: "instructor@coursemaster.com",
+      passwordHash: adminPassword,
       role: "admin",
     });
 
@@ -49,6 +56,13 @@ const seedDatabase = async () => {
     const student3 = await User.create({
       name: "Sumaiya Akter",
       email: "sumaiya@gmail.com",
+      passwordHash: studentPassword,
+      role: "student",
+    });
+
+    const student4 = await User.create({
+      name: "Nusrat Jahan",
+      email: "nusrat@gmail.com",
       passwordHash: studentPassword,
       role: "student",
     });
@@ -178,77 +192,257 @@ const seedDatabase = async () => {
                 },
               ],
             },
+            {
+              title: "Lesson 2: Flutter Navigation & Forms",
+              videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+              assignmentPrompt: "Build a multi-screen login and registration flow with form validation in Flutter.",
+            },
+          ],
+        },
+      ],
+    });
+
+    const course4 = await Course.create({
+      title: "Fullstack AI Engineering & Agentic Workflow Systems",
+      description: "Learn to build production-ready LLM-powered applications, AI agents, RAG pipelines, and tool-augmented workflows using TypeScript and Python.",
+      instructorName: "Jhankar Mahbub",
+      price: 6000,
+      category: "Artificial Intelligence",
+      tags: ["AI", "LLM", "Agents", "LangChain", "VectorDB"],
+      batches: [
+        { name: "Batch 1 (2026)", startDate: new Date("2026-04-01") },
+      ],
+      syllabus: [
+        {
+          title: "Module 1: Prompt Engineering & Embeddings",
+          lessons: [
+            {
+              title: "Lesson 1: Semantic Search & Vector Embeddings",
+              videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+              quiz: [
+                {
+                  question: "What metric is most commonly used to measure distance between vector embeddings?",
+                  options: ["Cosine Similarity", "Hamming Distance", "Jaccard Index", "Levenshtein Distance"],
+                  correctIndex: 0,
+                },
+              ],
+            },
+            {
+              title: "Lesson 2: Building your first RAG Pipeline",
+              videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+              assignmentPrompt: "Create a question-answering assistant over your custom PDF documents using vector search.",
+            },
           ],
         },
       ],
     });
 
     console.log("Seeding Enrollments...");
-    const lesson1Id = course1.syllabus[0].lessons[0]._id;
+    const c1Lesson1Id = course1.syllabus[0].lessons[0]._id;
+    const c1Lesson2Id = course1.syllabus[0].lessons[1]._id;
+    const c1Lesson3Id = course1.syllabus[1].lessons[0]._id;
 
-    const enrollment1 = await Enrollment.create({
+    const c2Lesson1Id = course2.syllabus[0].lessons[0]._id;
+    const c2Lesson2Id = course2.syllabus[0].lessons[1]._id;
+
+    const c3Lesson1Id = course3.syllabus[0].lessons[0]._id;
+    const c3Lesson2Id = course3.syllabus[0].lessons[1]._id;
+
+    // Student 1 Enrollments
+    await Enrollment.create({
       student: student1._id,
       course: course1._id,
       batchId: course1.batches[0]._id,
       progress: {
-        completedLessons: [lesson1Id],
+        completedLessons: [c1Lesson1Id, c1Lesson2Id],
+        percent: 50,
+      },
+    });
+
+    await Enrollment.create({
+      student: student1._id,
+      course: course2._id,
+      batchId: course2.batches[0]._id,
+      progress: {
+        completedLessons: [c2Lesson1Id],
+        percent: 50,
+      },
+    });
+
+    // Student 2 Enrollments
+    await Enrollment.create({
+      student: student2._id,
+      course: course1._id,
+      batchId: course1.batches[0]._id,
+      progress: {
+        completedLessons: [c1Lesson1Id],
         percent: 25,
       },
     });
 
-    const enrollment2 = await Enrollment.create({
-      student: student1._id,
-      course: course2._id,
-      batchId: course2.batches[0]._id,
+    await Enrollment.create({
+      student: student2._id,
+      course: course3._id,
+      batchId: course3.batches[0]._id,
+      progress: {
+        completedLessons: [c3Lesson1Id, c3Lesson2Id],
+        percent: 100,
+      },
+    });
+
+    // Student 3 Enrollments
+    await Enrollment.create({
+      student: student3._id,
+      course: course1._id,
+      batchId: course1.batches[1]._id,
       progress: {
         completedLessons: [],
         percent: 0,
       },
     });
 
-    const enrollment3 = await Enrollment.create({
-      student: student2._id,
-      course: course1._id,
-      batchId: course1.batches[0]._id,
+    await Enrollment.create({
+      student: student3._id,
+      course: course4._id,
+      batchId: course4.batches[0]._id,
       progress: {
-        completedLessons: [lesson1Id],
-        percent: 25,
+        completedLessons: [course4.syllabus[0].lessons[0]._id],
+        percent: 50,
       },
     });
 
-    console.log("Seeding Quiz & Assignment Submissions...");
+    // Student 4 Enrollments
+    await Enrollment.create({
+      student: student4._id,
+      course: course2._id,
+      batchId: course2.batches[0]._id,
+      progress: {
+        completedLessons: [c2Lesson1Id, c2Lesson2Id],
+        percent: 100,
+      },
+    });
+
+    console.log("Seeding Quiz Submissions...");
+    // Quiz 1: Student 1 on Course 1 Lesson 1
     await QuizSubmission.create({
       student: student1._id,
       course: course1._id,
-      lessonId: lesson1Id,
+      lessonId: c1Lesson1Id,
       answers: [1, 2],
       score: 2,
       total: 2,
       percent: 100,
     });
 
-    const lesson2Id = course1.syllabus[0].lessons[1]._id;
+    // Quiz 2: Student 2 on Course 1 Lesson 1
+    await QuizSubmission.create({
+      student: student2._id,
+      course: course1._id,
+      lessonId: c1Lesson1Id,
+      answers: [1, 0],
+      score: 1,
+      total: 2,
+      percent: 50,
+    });
+
+    // Quiz 3: Student 1 on Course 1 Module 2 Lesson 1
+    await QuizSubmission.create({
+      student: student1._id,
+      course: course1._id,
+      lessonId: c1Lesson3Id,
+      answers: [2],
+      score: 1,
+      total: 1,
+      percent: 100,
+    });
+
+    // Quiz 4: Student 2 on Course 3 Lesson 1
+    await QuizSubmission.create({
+      student: student2._id,
+      course: course3._id,
+      lessonId: c3Lesson1Id,
+      answers: [1],
+      score: 1,
+      total: 1,
+      percent: 100,
+    });
+
+    // Quiz 5: Student 4 on Course 2 Lesson 1
+    await QuizSubmission.create({
+      student: student4._id,
+      course: course2._id,
+      lessonId: c2Lesson1Id,
+      answers: [1],
+      score: 1,
+      total: 1,
+      percent: 100,
+    });
+
+    console.log("Seeding Assignment Submissions...");
+    // 1. Reviewed Assignment (Course 1, Lesson 2 - student1)
     await AssignmentSubmission.create({
       student: student1._id,
       course: course1._id,
-      lessonId: lesson2Id,
+      lessonId: c1Lesson2Id,
       answerType: "link",
       answer: "https://github.com/rahim/pricing-card-assignment",
       status: "reviewed",
       reviewer: adminUser._id,
-      reviewNotes: "Great job! Responsive layout looks clean across mobile and desktop.",
+      reviewNotes: "Great job! Clean responsive layout across mobile and desktop devices.",
       grade: 95,
+    });
+
+    // 2. Pending Assignment Submission (Course 1, Lesson 2 - student2) -> For Admin to test grading
+    await AssignmentSubmission.create({
+      student: student2._id,
+      course: course1._id,
+      lessonId: c1Lesson2Id,
+      answerType: "link",
+      answer: "https://github.com/tamim/flexbox-pricing-component",
+      status: "submitted",
+    });
+
+    // 3. Pending Assignment Submission (Course 2, Lesson 2 - student4) -> For Admin to test grading
+    await AssignmentSubmission.create({
+      student: student4._id,
+      course: course2._id,
+      lessonId: c2Lesson2Id,
+      answerType: "text",
+      answer: "Dataset analysis report completed: cleaned missing values, generated correlation heatmaps and boxplots. Notebook hosted at: https://colab.research.google.com/drive/tamim-analysis",
+      status: "submitted",
+    });
+
+    // 4. Reviewed Assignment (Course 3, Lesson 2 - student2)
+    await AssignmentSubmission.create({
+      student: student2._id,
+      course: course3._id,
+      lessonId: c3Lesson2Id,
+      answerType: "link",
+      answer: "https://github.com/tamim/flutter-auth-flow",
+      status: "reviewed",
+      reviewer: instructorUser._id,
+      reviewNotes: "Well architected state management and good form validation patterns.",
+      grade: 90,
     });
 
     console.log("Database Seeded Successfully! ✅");
     console.log("-----------------------------------------");
-    console.log("Admin Account:");
-    console.log(`Email: ${adminUser.email}`);
-    console.log("Password: admin123");
+    console.log("Admin Accounts:");
+    console.log(`- Super Admin: ${adminUser.email} (Password: admin123)`);
+    console.log(`- Instructor:  ${instructorUser.email} (Password: admin123)`);
     console.log("-----------------------------------------");
-    console.log("Student Account:");
-    console.log(`Email: ${student1.email}`);
-    console.log("Password: student123");
+    console.log("Student Accounts:");
+    console.log(`- Student 1:   ${student1.email} (Password: student123)`);
+    console.log(`- Student 2:   ${student2.email} (Password: student123)`);
+    console.log(`- Student 3:   ${student3.email} (Password: student123)`);
+    console.log(`- Student 4:   ${student4.email} (Password: student123)`);
+    console.log("-----------------------------------------");
+    console.log("Collections Summary:");
+    console.log("- Users: 6 documents");
+    console.log("- Courses: 4 documents");
+    console.log("- Enrollments: 7 documents");
+    console.log("- Quiz Submissions: 5 documents");
+    console.log("- Assignment Submissions: 4 documents (2 pending review, 2 reviewed)");
     console.log("-----------------------------------------");
 
     process.exit(0);

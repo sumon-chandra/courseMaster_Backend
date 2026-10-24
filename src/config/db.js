@@ -3,6 +3,11 @@
 const mongoose = require("mongoose");
 const dns = require("dns");
 
+try {
+  dns.setServers(["8.8.8.8", "8.8.4.4"]);
+} catch (e) {
+}
+
 // Ensure IPv4 first to resolve MongoDB Atlas SRV query issues on Windows
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder("ipv4first");
